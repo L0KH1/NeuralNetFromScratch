@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+import random
 import math
 
 # Input layer
@@ -8,17 +8,21 @@ import math
 
 
 class Node:
-    def __init__(self):
-        aval = 0.0
-        weights = []
-        bias = 0.0
+    def __init__(self, layer):
+        self.aval = 0.0
+        weights = [random.random() for x in range(len(previous_layer))]
+        bias = 0.0  # is there one bias per layer?
 
-    # this is applied starting at the first input layer
-    def activationValue(self, inputs, squasher):
+    def getWeights(self):
+        # when we use SGD with backprop we'll adjust the weights according to this optimization algo
+
+        # this is applied starting at the first input layer
+    def activationValue(self, inputs, actxn):
         # Relu(activations of previous layer x weights of inputs + biases for layer)
-        return ReLU(prev*inputs+biases)
-        # pull up fthe previous layer and grab the activation values from each neuron, then pull up then multiply each activation value by the weight the neuron in the previous layer mapped to the neuron whose value we're trying to calculate
-        for
+        # pull up the previous layer and grab the activation values from each neuron, then pull up then multiply each activation value by the weight the neuron in the previous layer mapped to the neuron whose value we're trying to calculate
+        for weight in weights:
+            self.aval += weight*prevlayerneuronaval+bias
+        return actfxn(self.aval)
 
 # now I'm gonna group together a bunch of the nodes so we can do fun stuff
 
