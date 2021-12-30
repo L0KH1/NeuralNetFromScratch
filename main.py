@@ -9,16 +9,14 @@ import math
 
 class Node:
     def __init__(self):
-        # activation value
-        aval
-        # nodes which input to it
-        inputs = []
-        # nodes to which it outputs
-        outputs = []
-        # biases applied to the node
-        bias = 0
-        # node layer - integer
-        layer = 0
+        node = {
+            # activation value
+            aval: 0.0,
+            # weights
+            weights: []
+            # biases applied to the node
+            bias = 0
+        }
 
     def activationValue(inputs, squasher):
         # Relu(activations of previous layer x weights of inputs + biases for layer)
@@ -30,12 +28,21 @@ class Node:
 class NeuralNet:
 
     # a layer is a list of nodes
-    def __init__(self, inputs, hidden, outputs, labels):
-
-        # inputs is an n-dimensional vector, so we've gotta flatten it
+    def __init__(self, inputs, hidden, hiddenSize, actfxn, outputs, labels, costfxn):
+        # this is our big papa structure
+        schema = []
+        # inputs is an n-dimensional vector, so we've gotta flatten it before it can be used in our net
         inputs = inputs.flatten()
+        # the first entry of our schema is a list of length equal to our inputs
+        schema.append(inputs)
+        # now I'm inserting the amount of hidden layers we have and their respective lengths into the schema
+        for layer, size in range(hidden), hiddenSize:
+            schema.append([0]*size)
+        # we setup the output layer
+        schema.append(outputs)
 
     # this function runs our calculations forward through the network
+
     def right(self):
         # we go layer by layer, and neuron by neuron
         for layer in len(layers):
