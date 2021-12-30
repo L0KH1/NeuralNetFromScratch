@@ -9,18 +9,16 @@ import math
 
 class Node:
     def __init__(self):
-        node = {
-            # activation value
-            aval: 0.0,
-            # weights
-            weights: []
-            # biases applied to the node
-            bias = 0
-        }
+        aval = 0.0
+        weights = []
+        bias = 0.0
 
-    def activationValue(inputs, squasher):
+    # this is applied starting at the first input layer
+    def activationValue(self, inputs, squasher):
         # Relu(activations of previous layer x weights of inputs + biases for layer)
         return ReLU(prev*inputs+biases)
+        # pull up fthe previous layer and grab the activation values from each neuron, then pull up then multiply each activation value by the weight the neuron in the previous layer mapped to the neuron whose value we're trying to calculate
+        for
 
 # now I'm gonna group together a bunch of the nodes so we can do fun stuff
 
@@ -30,24 +28,24 @@ class NeuralNet:
     # a layer is a list of nodes
     def __init__(self, inputs, hidden, hiddenSize, actfxn, outputs, labels, costfxn):
         # this is our big papa structure
-        schema = []
+        self.schema = []
         # inputs is an n-dimensional vector, so we've gotta flatten it before it can be used in our net
         inputs = inputs.flatten()
         # the first entry of our schema is a list of length equal to our inputs
-        schema.append(inputs)
+        self.schema.append(inputs)
         # now I'm inserting the amount of hidden layers we have and their respective lengths into the schema
         for layer, size in range(hidden), hiddenSize:
-            schema.append([0]*size)
+            self.schema.append([0]*size)
         # we setup the output layer
-        schema.append(outputs)
+        self.schema.append(outputs)
 
     # this function runs our calculations forward through the network
 
     def right(self):
         # we go layer by layer, and neuron by neuron
-        for layer in len(layers):
-            for node in len(layer):
-                node = node.getActivationValue()
+        for l in range(1, len(self.schema)):
+            for n in len(self.schema[i]):
+                schema[l][n] = getActivationValue(schema[l][n])
 
     # this function runs our backpropagation
     def left(self):
