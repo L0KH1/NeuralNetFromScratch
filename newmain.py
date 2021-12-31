@@ -2,7 +2,7 @@ import math
 import random
 import numpy as np
 
-def setup(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
+def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
     # the overarching structure
     schema=[]
 
@@ -19,19 +19,46 @@ def setup(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
     for i in range(hidden):
         # here we randomly initialize the weights and biases each neuron receives from the previous layer
         schema.append(hiddenSize[i]*[{
-            "weights": len(schema[i])*[random.random()], 
-            "biases": len(schema[i])*[random.random()], 
-            "aval": 0.0}])
+            "weights": (len(schema[i])-1)*[random.random()], 
+            "biases": (len(schema[i])-1)*[random.random()], 
+            "aval": 0.5}])
     
     # now we move to set up our output layer
     schema.append(outputs*[{
-        "weights": len(schema[len(schema)-1])*[random.random()],
-        "biases": len(schema[len(schema)-1])*[random.random()],
-        "aval": 0.0}])
+        "weights": (len(schema[len(schema)-1])-1)*[random.random()],
+        "biases": (len(schema[len(schema)-1])-1)*[random.random()],
+        "aval": 0.5}])
     
     return schema
 
-model = setup((2,2),3,(4,4,4),"ReLU",3,"BCE")
+model = setupNN((2,2),3,(3,5,4),"ReLU",3,"BCE")
 
 for layer in model:
     print("\n",layer,"\n")
+
+# print('\n First hidden layer \n', model[1][0].get('weights'))
+
+
+def activationValue(model, actfxn):
+        # Relu(activations of previous layer x weights of inputs + biases for layer)
+        # pull up the previous layer and grab the activation values from each neuron, then pull up then multiply each activation value by the weight the neuron in the previous layer mapped to the neuron whose value we're trying to calculate
+
+        # here's a helper function which will make accessing the activation values of the previous layer much easier
+        def get_prev_avals(layer):
+            avals=[]
+            for node in layer:
+                avals.append(node.get("aval"))
+            return avals
+
+        # for each layer in the model, starting from the first hidden layer
+        for layer in range(1,len(model)):
+            for node in range(len(model[layer])):
+                print('Weights',model[layer][node].get('weights'),'\n')
+                print('Biases',model[layer][node].get('weights'),'\n')
+                print('Prev Act Vals',get_prev_avals(model[layer]),'\n')
+                aval = np.dot(model[layer][node].get('weights'), get_prev_avals(model[layer]))# + np.dot(model[layer][node].get('bias'), get_prev_avals(model[layer]))
+                
+            #model[layer]=aval
+        return 0
+
+print(activationValue(model, 'ReLU'))
