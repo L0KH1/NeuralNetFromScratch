@@ -19,14 +19,14 @@ def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
     for i in range(hidden):
         # here we randomly initialize the weights and biases each neuron receives from the previous layer
         schema.append(hiddenSize[i]*[{
-            "weights": (len(schema[i])-1)*[random.random()], 
-            "biases": (len(schema[i])-1)*[random.random()], 
+            "weights": len(schema[i])*[random.random()], 
+            "biases": len(schema[i])*[random.random()], 
             "aval": 0.5}])
     
     # now we move to set up our output layer
     schema.append(outputs*[{
-        "weights": (len(schema[len(schema)-1])-1)*[random.random()],
-        "biases": (len(schema[len(schema)-1])-1)*[random.random()],
+        "weights": len(schema[len(schema)-1])*[random.random()],
+        "biases": len(schema[len(schema)-1])*[random.random()],
         "aval": 0.5}])
     
     return schema
