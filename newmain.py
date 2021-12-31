@@ -33,8 +33,8 @@ def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
 
 model = setupNN((2,2),3,(3,5,4),"ReLU",3,"BCE")
 
-for layer in model:
-    print("\n",layer,"\n")
+# for layer in model:
+#     print("\n",layer,"\n")
 
 # print('\n First hidden layer \n', model[1][0].get('weights'))
 
