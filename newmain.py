@@ -64,10 +64,38 @@ def downstream(model):
                 # print('Biases',model[layer][node].get('biases'),'\n')
                 # print('Prev Act Vals',get_prev_avals(model[layer]),'\n')
                 prev_layer=get_prev_avals(model[layer-1])
-                model[layer][node]['aval']=ReLU(np.dot(model[layer][node].get('weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer))
+                # applying softmax to our output layer
+                if layer == len(model):
+                    model[layer][node]['aval']=softmax(ReLU(np.dot(model[layer][node].get('weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer)))
+                else:
+                    model[layer][node]['aval']=ReLU(np.dot(model[layer][node].get('weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer))
         return model
 
-# definining some activation functions
+
+print(downstream(model))
+
+def ReLU_Derivative(output):
+    if output > 0:
+        return 1
+    elif output < 0:
+        return 0
+    else:
+        raise ValueError("No derivative when output = 0")
+
+# defining our softmax function
+def softmax(outputlayer):
+    softoutput = []
+    # get the value of our denominator
+    denom = 0
+    for val in outputlayer:
+        denom += math.e**val
+
+    # get our softmaxed values
+    for val in outputlayer:
+        softoutput.append(math.e**val / denom)
+    return softoutput
+
+# definining some transfer/activation functions
 def LReLU(input):
     return ReLU(input)-.01*min(0, input)
 
@@ -82,5 +110,3 @@ def Sigmoid(input):
 
 def Tanh(input):
     return math.e**(2*input)-1/math.e**(2*input)+1
-
-print(downstream(model))
