@@ -92,17 +92,14 @@ def softmax(outputlayer):
 def LReLU(input):
     return ReLU(input)-.01*min(0, input)
 
-
 def ReLU(input):
     if input > 0:
         return input
     else:
         return 0
 
-
 def Sigmoid(input):
     return 1/(1+(math.e)**-input)
-
 
 def Tanh(input):
     return math.e**(2*input)-1/math.e**(2*input)+1
