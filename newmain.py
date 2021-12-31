@@ -47,7 +47,14 @@ def activationValue(model, actfxn):
         def get_prev_avals(layer):
             avals=[]
             for node in layer:
-                avals.append(node.get("aval"))
+                # used to avoid error while testing without inputs
+                if layer is not model[0]:
+                    # print("Layer: ",layer, "\n\n Node: ",node)
+                    # print("\nnode.get('aval')",node.get('aval'),'\n')
+                    avals.append(node.get('aval'))
+                else:
+                    print('\n\nfirst layer \n\n')
+                    avals.append(0)
             return avals
 
         # for each layer in the model, starting from the first hidden layer
@@ -56,7 +63,7 @@ def activationValue(model, actfxn):
                 print('Weights',model[layer][node].get('weights'),'\n')
                 print('Biases',model[layer][node].get('weights'),'\n')
                 print('Prev Act Vals',get_prev_avals(model[layer]),'\n')
-                aval = np.dot(model[layer][node].get('weights'), get_prev_avals(model[layer]))# + np.dot(model[layer][node].get('bias'), get_prev_avals(model[layer]))
+                aval = np.dot(model[layer][node].get('weights'), get_prev_avals(model[layer-1]))# + np.dot(model[layer][node].get('bias'), get_prev_avals(model[layer]))
                 
             #model[layer]=aval
         return 0
