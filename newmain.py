@@ -134,7 +134,6 @@ def calculate_cost(model, label, costfxn):
         cost += costfxn(output[len(model-1)][i].get('aval'), label[i])
     # get the average cost
     cost /= len(label)
-
     return cost
 
 # one-hot the labels
@@ -147,9 +146,18 @@ def one_hot(labels):
     ohlabels = [0]*len(labels)
     return ohlabels
 
+# now time for back-propagation! - an automatic differentiation method which allows us to calculate the error correction for each weight and bias!
 
-# def backpropagate(model):
+
+def backpropagate(model):
+    # moving from the last layer to the first layer
+    for layer in reversed(range(1, len(model))):
+        # moving through the nodes
+        for node in range(len(model[layer])):
+            # want to calculate change relative to weights and biases
+            model += 1
+    return model
 
 
-# testing area
+    # testing area
 print(downstream(model))
