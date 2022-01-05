@@ -33,22 +33,32 @@ def softmax(outputlayer):
 def LReLU(input):
     return ReLU(input)-.01*min(0, input)
 
-
 def ReLU(input):
     if input > 0:
         return input
     else:
         return 0
 
-
-def Sigmoid(input):
+def sigmoid(input):
     return 1/(1+(math.e)**-input)
 
+def sigmoid_derivative(input):
+    return input * (1.0-input)
 
-def Tanh(input):
+def tanh(input):
     return math.e**(2*input)-1/math.e**(2*input)+1
 
 
+# one-hot the labels
+# will probably be best to make some class or method to handle diverse sets of data
+# will need to know all the labels, when given a label, it checks the list of labels, assigns a 1 in the list for the index designating that label (list is initialized to equal all 0s)
+def one_hot(labels):
+    # so, need to create a vector representation of the labels, where each label has an index, and the input with the label we want
+    ohlabels = [0]*len(labels)
+    return ohlabels
+
+
+# initialize our network
 def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
     # the overarching structure
     schema = []
@@ -68,13 +78,15 @@ def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
         schema.append(hiddenSize[i]*[{
             "weights": len(schema[i])*[random.random()],
             "biases": len(schema[i])*[random.random()],
-            "aval": 0.5}])
+            "aval": 0.5,
+            "gradient":0.0}])
 
     # now we move to set up our output layer
     schema.append(len(range(len(outputs)))*[{
         "weights": len(schema[len(schema)-1])*[random.random()],
         "biases": len(schema[len(schema)-1])*[random.random()],
-        "aval": 0.5}])
+        "aval": 0.5,
+        "gradient":0.0}])
 
     return schema
 
@@ -114,19 +126,16 @@ def downstream(model):
             prev_layer = get_prev_avals(model[layer-1])
             # applying softmax to our output layer
             if layer == len(model):
-                model[layer][node]['aval'] = softmax(ReLU(np.dot(model[layer][node].get(
+                model[layer][node]['aval'] = softmax(sigmoid(np.dot(model[layer][node].get(
                     'weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer)))
             # hidden layers
             else:
-                model[layer][node]['aval'] = ReLU(np.dot(model[layer][node].get(
+                model[layer][node]['aval'] = sigmoid(np.dot(model[layer][node].get(
                     'weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer))
     return model
 
 # after we've run forwards through our netowrk, we need to calculate the cost, and then backpropagate that error
-
 # calculate the cost from a single run through the network of a training sample
-
-
 def calculate_cost(model, label, costfxn):
     cost = 0
     # go through the output layer and add up the costs
@@ -136,28 +145,16 @@ def calculate_cost(model, label, costfxn):
     cost /= len(label)
     return cost
 
-# one-hot the labels
-# will probably be best to make some class or method to handle diverse sets of data
-# will need to know all the labels, when given a label, it checks the list of labels, assigns a 1 in the list for the index designating that label (list is initialized to equal all 0s)
-
-
-def one_hot(labels):
-    # so, need to create a vector representation of the labels, where each label has an index, and the input with the label we want
-    ohlabels = [0]*len(labels)
-    return ohlabels
-
 # now time for back-propagation! - an automatic differentiation method which allows us to calculate the error correction for each weight and bias!
-
-
 def backpropagate(model):
     # moving from the last layer to the first layer
     for layer in reversed(range(1, len(model))):
         # moving through the nodes
         for node in range(len(model[layer])):
             # want to calculate change relative to weights and biases
-            model += 1
+            dweight = 
     return model
 
 
-    # testing area
+# testing area
 print(downstream(model))
