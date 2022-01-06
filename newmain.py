@@ -12,9 +12,10 @@ def ReLU_Derivative(output):
     else:
         raise ValueError("No derivative when output = 0")
 
+def sigmoid_d(output):
+    return sigmoid(output)*(1-sigmoid(output))
+
 # defining our softmax function
-
-
 def softmax(outputlayer):
     softoutput = []
     # get the value of our denominator
@@ -28,8 +29,6 @@ def softmax(outputlayer):
     return softoutput
 
 # definining some transfer/activation functions
-
-
 def LReLU(input):
     return ReLU(input)-.01*min(0, input)
 
@@ -152,7 +151,8 @@ def backpropagate(model):
         # moving through the nodes
         for node in range(len(model[layer])):
             # want to calculate change relative to weights and biases
-            dweight = 
+            # new weight = old weight - learning rate * (input neuron * (prediction-actual)*output weight)
+            
     return model
 
 
