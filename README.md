@@ -1,4 +1,4 @@
-﻿# Raw Neural Net
+﻿# Neural Net From Scratch
 
 Yooooooooo!
 
