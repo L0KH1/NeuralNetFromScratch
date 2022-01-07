@@ -2,19 +2,6 @@ import math
 import random
 import numpy as np
 
-
-# define derivatives of transfer functions
-def ReLU_Derivative(output):
-    if output > 0:
-        return 1
-    elif output < 0:
-        return 0
-    else:
-        raise ValueError("No derivative when output = 0")
-
-def sigmoid_d(output):
-    return sigmoid(output)*(1-sigmoid(output))
-
 # defining our softmax function
 def softmax(outputlayer):
     softoutput = []
@@ -41,11 +28,20 @@ def ReLU(input):
 def sigmoid(input):
     return 1/(1+(math.e)**-input)
 
-def sigmoid_derivative(input):
-    return input * (1.0-input)
-
 def tanh(input):
     return math.e**(2*input)-1/math.e**(2*input)+1
+
+# define derivatives of transfer functions
+def ReLU_Derivative(output):
+    if output > 0:
+        return 1
+    elif output < 0:
+        return 0
+    else:
+        raise ValueError("No derivative when output = 0")
+
+def sigmoid_d(output):
+    return sigmoid(output)*(1-sigmoid(output))
 
 
 # one-hot the labels
