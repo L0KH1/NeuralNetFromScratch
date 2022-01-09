@@ -53,19 +53,19 @@ def one_hot(labels):
     return ohlabels
 
 
-# initialize our network
-def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
+# initialize our network - for the prototype just using Sigmoid, MSE, and SGD
+def setupNN(layers, layersize, activationfxn, costfxn, optimizer):
     # the overarching structure
     schema = []
 
-    # inputs is an nxn-dimensional vector, so we've gotta turn it into an nx1 (or 1xn) vector to input it into our net
-    input_length = 1
-    for element in inputs:
+    # inputs is an nxn-dimensional vector, so we've gotta turn it into a 1 dimensional vector to input it into our net
+    input_length = 1 # a temp variable for calculation purposes
+    for element in layers:
         input_length *= element
-    inputs = [0]*input_length
+    inputs = [0]*input_length # input is initialized to a 0 vector (change later)
 
     # the first entry of our schema is a list with length equal to our inputs
-    schema.append(inputs)
+    schema.append(inputs) # sets up the input layer
 
     # setting up number of hidden layers and number of neurons in each layer
     for i in range(hidden):
@@ -74,14 +74,16 @@ def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
             "weights": len(schema[i])*[random.random()],
             "biases": len(schema[i])*[random.random()],
             "aval": 0.5,
-            "gradient":0.0}])
+            "gradients":[]
+            }])
 
     # now we move to set up our output layer
     schema.append(len(range(len(outputs)))*[{
         "weights": len(schema[len(schema)-1])*[random.random()],
         "biases": len(schema[len(schema)-1])*[random.random()],
         "aval": 0.5,
-        "gradient":0.0}])
+        "gradients":[]}
+        ])
 
     return schema
 
@@ -151,6 +153,14 @@ def backpropagate(model):
             
     return model
 
+def stochasticgradientdescent(model,lr):
+    # moving from the last layer to the first layer
+    for layer in reversed(range(1, len(model))):
+        # moving through the nodes
+        for node in range(len(model[layer])):
+            # want to calculate change relative to weights and biases
+            # new weight = old weight - learning rate * (input neuron * (prediction-actual)*output weight)
+            model[layer][node]['aval']=model[layer][node].get('aval')-lr*gradient
 
 # testing area
 print(downstream(model))

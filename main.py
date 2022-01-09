@@ -13,5 +13,11 @@ class NN:
         self.costfxn=costfxn # MSE for now
         self.optimizer=optimizer # basic SGD for now
 
+        for 
+
 class Node:
-    def __init__(self, )
+    def __init__(self, bias):
+        # need to design the system based off of the requirements of backpropagation since that requires the more difficult information
+        self.netinput=0
+        self.output=0
+        self.bias=bias
