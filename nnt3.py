@@ -51,8 +51,15 @@ def one_hot(labels):
     ohlabels = [0]*len(labels)
     return ohlabels
 
+# dot product helper function
+def dot(v1,v2):
+    dotted=[]
+    for val in range(len(v1)):
+        dotted.append(v1[val]*v2[val])
+    return dotted
+
 # initialize our network - for the prototype just using Sigmoid, MSE, and SGD
-def setupNN(input, layers, afxn, cfxn, ofxn):
+def setupNN(input, layers, afxn="sigmoid", cfxn="mse", ofxn="sgd"):
     # the overarching structure
     schema = []
 
@@ -60,94 +67,78 @@ def setupNN(input, layers, afxn, cfxn, ofxn):
     for i in range(len(layers)): # looping over each layer
         if i == 0: # when setting up the input layer
             schema.append( # add layer to schema, contents described below
-                len(layers[i]) * # the number of nodes in the layer
                 [ # store it in a list so we can iterate over it
                 { # an empty dictionary, later on need to fill this up with data
-                # fill with data pertaining to the model's input
+                "aval": 1,
                 }
+                for i in range(layers[i])
                 ]
             )
         else: # when setting up the rest of the layers - differs only by storing gradients for weights
             schema.append( # add layer to schema, contents described below
-                len(layers[i]) *[{ # the number of nodes in the layer
-                # a dictionary containing all of the attributes of a neuron
+                [{ # the number of nodes in the layer * a dictionary containing all of the attributes of a neuron
                 "weights": len(schema[i-1])*[random.random()], # weights=#neurons in previous layer, initialized to a random value. Note, the weights stored by each node in each layer are those that are coming into it
-                "bias": 0.1, # each neuron has a bias
+                "bias": 1, # each neuron has a bias
                 "aval": 0.5, # activation value, populated later by forwardprop
                 "wgradients": len(schema[i-1])*[0], # gradients for weights, populated later by backprop
-                "bgradient": # gradient for bias, populated later by backprop
+                "bgradient": 0# gradient for bias, populated later by backprop
                 }
+                for i in range(layers[i])
                 ]
             )
     return schema
 
+network = setupNN(0,(3,2,2)) #initialize our network structure
+
+# this provides a nice visualization of what the network looks like
+for layer in range(len(network)):
+    print('Layer ',layer,'---------------\n')
+    for node in range(len(network[layer])):
+        print('    Node ',node,':',network[layer][node],'\n')
 
 
-def downstream(model):
-    # pull up the previous layer and grab the activation values from each neuron, then pull up then multiply each activation value by the weight the neuron in the previous layer mapped to the neuron whose value we're trying to calculate
+# calculate the activation values for the model
+def forwardprop(model):
+    
+    # testing area - hardcoding in known values to see if data flowing properly
 
-    # here's a helper function which will make accessing the activation values of the previous layer much easier
-    def get_prev_avals(layer):
-        avals = []
-        for node in layer:
-            # used to avoid error while testing without inputs
-            if layer is not model[0]:
-                # print("Layer: ",layer, "\n\n Node: ",node)
-                # print("\nnode.get('aval')",node.get('aval'),'\n')
-                avals.append(node.get('aval'))
-            else:
-                # print('\n\nfirst layer \n\n')
-                avals.append(.6)
-        return avals
+    # activation values of input neurons
+    model[0][0]['aval']=1
+    model[0][1]['aval']=4
+    model[0][2]['aval']=4
 
-    # for each layer in the model, starting from the first hidden layer
-    for layer in range(1, len(model)):
-        # calculate the activation value for each node
-        for node in range(len(model[layer])):
-            # print('Weights',model[layer][node].get('weights'),'\n')
-            # print('Biases',model[layer][node].get('biases'),'\n')
-            # print('Prev Act Vals',get_prev_avals(model[layer]),'\n')
-            prev_layer = get_prev_avals(model[layer-1])
-            # applying softmax to our output layer
-            if layer == len(model):
-                model[layer][node]['aval'] = softmax(sigmoid(np.dot(model[layer][node].get(
-                    'weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer)))
-            # hidden layers
-            else:
-                model[layer][node]['aval'] = sigmoid(np.dot(model[layer][node].get(
-                    'weights'), prev_layer) + np.dot(model[layer][node].get('biases'), prev_layer))
+    # first layer of weights
+    model[1][0]['weights']=[.1,.3,.5]
+    model[1][1]['weights']=[.2,.4,.6]
+    
+    # second layer of weights
+    model[2][0]['weights']=[.7,.9]
+    model[2][1]['weights']=[.8,.1]
+
+    # a little helper function for grabbing the activations and biases for the previous layer
+    def plab(layer):
+        activations=[]
+        biases=[]
+        ab=[]
+        for index in layer:
+            activations.append(layer[index].get('aval'))
+            biases.append(layer[index].get('bias'))
+        ab.append(activations)
+        ab.append(biases)
+        return ab
+
+    for layer in range(len(model)): # loop over each layer in the model
+        if layer == 0: #we don't change the value of our input layer's nodes
+            break
+        else: # all layers that aren't the input layer
+            for node in range(len(model[layer])): # loop over each node in the layer
+                model[layer][node]["aval"]= sigmoid(dot(model[layer][node].get("weights"),plab(model[layer-1][node])[0]) + plab(model[layer-1][node])[1]) # the activation function
     return model
 
-# after we've run forwards through our netowrk, we need to calculate the cost, and then backpropagate that error
-# calculate the cost from a single run through the network of a training sample
-def calculate_cost(model, label, costfxn):
-    cost = 0
-    # go through the output layer and add up the costs
-    for i in range(len(label)):
-        cost += costfxn(output[len(model-1)][i].get('aval'), label[i])
-    # get the average cost
-    cost /= len(label)
-    return cost
-
-# now time for back-propagation! - an automatic differentiation method which allows us to calculate the error correction for each weight and bias!
-def backpropagate(model):
-    # moving from the last layer to the first layer
-    for layer in reversed(range(1, len(model))):
-        # moving through the nodes
-        for node in range(len(model[layer])):
-            # want to calculate change relative to weights and biases
-            # new weight = old weight - learning rate * (input neuron * (prediction-actual)*output weight)
-            
-    return model
-
-def stochasticgradientdescent(model,lr):
-    # moving from the last layer to the first layer
-    for layer in reversed(range(1, len(model))):
-        # moving through the nodes
-        for node in range(len(model[layer])):
-            # want to calculate change relative to weights and biases
-            # new weight = old weight - learning rate * (input neuron * (prediction-actual)*output weight)
-            model[layer][node]['aval']=model[layer][node].get('aval')-lr*gradient
-
-# testing area
-print(downstream(model))
+network = forwardprop(network) # running a first forward propagation to see if we get some good values
+print('\n\n **************** After Forward Prop ****************\n\n')
+for layer in range(len(network)):
+    print('Layer ',layer,'---------------\n')
+    for node in range(len(network[layer])):
+        print('    Node ',node,':',network[layer][node],'\n')
+print(network[2][0].get('weights'),'\n',network[2][1].get('weights'))
