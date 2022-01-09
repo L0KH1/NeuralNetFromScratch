@@ -1,6 +1,5 @@
 import math
 import random
-import numpy as np
 
 # defining our softmax function
 def softmax(outputlayer):
@@ -52,48 +51,36 @@ def one_hot(labels):
     ohlabels = [0]*len(labels)
     return ohlabels
 
-
 # initialize our network - for the prototype just using Sigmoid, MSE, and SGD
-def setupNN(layers, layersize, activationfxn, costfxn, optimizer):
+def setupNN(input, layers, afxn, cfxn, ofxn):
     # the overarching structure
     schema = []
 
-    # inputs is an nxn-dimensional vector, so we've gotta turn it into a 1 dimensional vector to input it into our net
-    input_length = 1 # a temp variable for calculation purposes
-    for element in layers:
-        input_length *= element
-    inputs = [0]*input_length # input is initialized to a 0 vector (change later)
-
-    # the first entry of our schema is a list with length equal to our inputs
-    schema.append(inputs) # sets up the input layer
-
     # setting up number of hidden layers and number of neurons in each layer
-    for i in range(hidden):
-        # here we randomly initialize the weights and biases each neuron receives from the previous layer
-        schema.append(hiddenSize[i]*[{
-            "weights": len(schema[i])*[random.random()],
-            "biases": len(schema[i])*[random.random()],
-            "aval": 0.5,
-            "gradients":[]
-            }])
-
-    # now we move to set up our output layer
-    schema.append(len(range(len(outputs)))*[{
-        "weights": len(schema[len(schema)-1])*[random.random()],
-        "biases": len(schema[len(schema)-1])*[random.random()],
-        "aval": 0.5,
-        "gradients":[]}
-        ])
-
+    for i in range(len(layers)): # looping over each layer
+        if i == 0: # when setting up the input layer
+            schema.append( # add layer to schema, contents described below
+                len(layers[i]) * # the number of nodes in the layer
+                [ # store it in a list so we can iterate over it
+                { # an empty dictionary, later on need to fill this up with data
+                # fill with data pertaining to the model's input
+                }
+                ]
+            )
+        else: # when setting up the rest of the layers - differs only by storing gradients for weights
+            schema.append( # add layer to schema, contents described below
+                len(layers[i]) *[{ # the number of nodes in the layer
+                # a dictionary containing all of the attributes of a neuron
+                "weights": len(schema[i-1])*[random.random()], # weights=#neurons in previous layer, initialized to a random value. Note, the weights stored by each node in each layer are those that are coming into it
+                "bias": 0.1, # each neuron has a bias
+                "aval": 0.5, # activation value, populated later by forwardprop
+                "wgradients": len(schema[i-1])*[0], # gradients for weights, populated later by backprop
+                "bgradient": # gradient for bias, populated later by backprop
+                }
+                ]
+            )
     return schema
 
-
-model = setupNN((2, 2), 3, (3, 5, 4), "ReLU", ('red', 'green', 'blue'), "BCE")
-
-# for layer in model:
-#     print("\n",layer,"\n")
-
-# print('\n First hidden layer \n', model[1][0].get('weights'))
 
 
 def downstream(model):

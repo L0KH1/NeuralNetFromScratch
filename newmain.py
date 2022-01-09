@@ -58,11 +58,11 @@ def setupNN(inputs, hidden, hiddenSize, actfxn, outputs, costfxn):
     # the overarching structure
     schema = []
 
-    # inputs is an nxn-dimensional vector, so we've gotta turn it into an nx1 (or 1xn) vector to input it into our net
-    input_length = 1
+    # inputs is an nxn-dimensional vector, so we've gotta turn it into a 1 dimensional vector to input it into our net
+    input_length = 1 # a temp variable for calculation purposes
     for element in inputs:
         input_length *= element
-    inputs = [0]*input_length
+    inputs = [0]*input_length # input is initialized to a 0 vector (change later)
 
     # the first entry of our schema is a list with length equal to our inputs
     schema.append(inputs)
