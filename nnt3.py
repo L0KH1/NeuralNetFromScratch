@@ -80,6 +80,7 @@ def setupNN(input, layers, afxn='sigmoid', cfxn='mse', ofxn='sgd'):
                 [{ # the number of nodes in the layer * a dictionary containing all of the attributes of a neuron
                 'weights': len(schema[i-1])*[random.random()], # weights=#neurons in previous layer, initialized to a random value. Note, the weights stored by each node in each layer are those that are coming into it
                 'bias': 1, # each neuron has a bias
+                'input':0,
                 'aval': 0.5, # activation value, populated later by forwardprop
                 'wgradients': len(schema[i-1])*[0], # gradients for weights, populated later by backprop
                 'bgradient': 0# gradient for bias, populated later by backprop
@@ -134,7 +135,9 @@ def forwardprop(model):
         else: # all layers that aren't the input layer
             for node in range(len(model[layer])): # loop over each node in the layer
                 #print('\n ***************** Hello chap! ***************** \n',plab(model[layer-1])[0],plab(model[layer-1])[1])
-                model[layer][node]['aval']= sigmoid(dot(model[layer][node].get('weights'),plab(model[layer-1])[0]) + sum(plab(model[layer-1])[1])) # the activation function
+
+                model[layer][node]['input']= dot(model[layer][node].get('weights'),plab(model[layer-1])[0]) + sum(plab(model[layer-1])[1]) # the input value
+                model[layer][node]['aval']= sigmoid(model[layer][node].get('input')) # the activated value
     
     # here we apply softmax to the output layer
     model.append([]) # create an extra layer so I can call plab on last (current) layer
@@ -174,16 +177,18 @@ print(loss)
 
 def backprop(model,loss):
 
-    # helper function for pd of cost wrt current neuron
+    # helper function for pd of cost wrt connected-to neuron
     def pdlosswrtnode(loss, node): # need loss and node of concern
         return 0
     
     # helper function for pd of activated value wrt non-activated value
     def pdawrtz(node): # just need the node of concern for this one
         return 0
+
     # helper function for pd of non-activated value wrt weight
     def pdzwrtwi(node,w): # z = current neuron | w = index of input weight
         return 0
+
     for layer in reversed(range(len(model))): # traversing from output layer
         for node in range(len(layer)): # access each neuron
             for weight in range(len(model[layer][node]['weights'])): # go over each weight
