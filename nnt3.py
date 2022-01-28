@@ -179,15 +179,16 @@ def backprop(model,loss):
 
     # helper function for pd of cost wrt connected-to neuron
     def pdlosswrtnode(loss, node): # need loss and node of concern
-        return 0
+        return model[layer][node].get('aval')-idealfornode
     
     # helper function for pd of activated value wrt non-activated value
     def pdawrtz(node): # just need the node of concern for this one
-        return 0
+        return model[layer][node].get('aval')(1-model[layer][node].get('aval'))
 
     # helper function for pd of non-activated value wrt weight
+    # this is just the aval of the node the weight is coming from
     def pdzwrtwi(node,w): # z = current neuron | w = index of input weight
-        return 0
+        return model[layer-1][node].get('aval')
 
     for layer in reversed(range(len(model))): # traversing from output layer
         for node in range(len(layer)): # access each neuron
