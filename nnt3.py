@@ -65,12 +65,12 @@ def setupNN(input, layers, afxn='sigmoid', cfxn='mse', ofxn='sgd'):
 
     # setting up number of hidden layers and number of neurons in each layer
     for i in range(len(layers)): # looping over each layer
-        if i == 0: # when setting up the input layer
+        if i == 0: # when setting up the INPUT layer
             schema.append( # add layer to schema, contents described below
                 [ # store it in a list so we can iterate over it
                 { # an empty dictionary, later on need to fill this up with data
                 'aval': 1,
-                'bias':1
+                'bias':1,
                 }
                 for i in range(layers[i])
                 ]
@@ -83,7 +83,9 @@ def setupNN(input, layers, afxn='sigmoid', cfxn='mse', ofxn='sgd'):
                 'input':0,
                 'aval': 0.5, # activation value, populated later by forwardprop
                 'wgradients': len(schema[i-1])*[0], # gradients for weights, populated later by backprop
-                'bgradient': 0# gradient for bias, populated later by backprop
+                'bgradient': 0, # gradient for bias, populated later by backprop
+                'dEdo':0, # change in error wrt change in aval
+                'dadi':0 # change in aval wrt change in input - derivative of activation fxn
                 }
                 for i in range(layers[i])
                 ]
@@ -175,22 +177,24 @@ loss = calculateloss(network, [1,0])
 print(loss)
 
 
-def backprop(model,loss):
+def backwards(model,loss,labels,lr=.03): #performs backprop and stochastic gradient descent
 
-    # helper function for pd of cost wrt connected-to neuron
-    def pdlosswrtnode(loss, node): # need loss and node of concern
+    # helper function for pd of cost wrt aval of connected-to neuron
+    def dlosswrtact(loss, node, weight): # need loss and node of concern<-(tuple=layer,node)
+        for i in range(dist):
+            if i == range(dist):
+
         return model[layer][node].get('aval')-idealfornode
     
     # helper function for pd of activated value wrt non-activated value
-    def pdawrtz(node): # just need the node of concern for this one
+    def dactwrtinp(node): # just need the node of concern for this one
         return model[layer][node].get('aval')(1-model[layer][node].get('aval'))
 
     # helper function for pd of non-activated value wrt weight
     # this is just the aval of the node the weight is coming from
-    def pdzwrtwi(node,w): # z = current neuron | w = index of input weight
+    def pdzwrtwi(node,weight): # z = current neuron | w = index of input weight
         return model[layer-1][node].get('aval')
 
     for layer in reversed(range(len(model))): # traversing from output layer
         for node in range(len(layer)): # access each neuron
-            for weight in range(len(model[layer][node]['weights'])): # go over each weight
-                model[layer][node]['weightgradient'][weight] = pdlosswrtnode(loss,node)*pdawrtz(node)*pdzwrtwi(node,weight)
+            model[layer][node]['weightgradient'][weight] = dlosswrtact(loss,(layer,node),weight)*dactwrtinp(node)*dinpwrtwi(node,weight)
