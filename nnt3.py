@@ -180,9 +180,21 @@ print(loss)
 def backwards(model,loss,labels,lr=.03): #performs backprop and stochastic gradient descent
 
     # helper function for pd of cost wrt aval of connected-to neuron
-    def derrordout(node, weight): # need loss and node of concern<-(tuple=layer,node)
-        for i in range(dist):
-        return model[layer][node].get('aval')-idealfornode
+    def derrordout(layer, node, weight): # need loss and node of concern<-(tuple=layer,node)
+
+        if layer == len(model)-1: # if we're dealing with the output layer
+            # we'll calcualte (output-target) <=> (actual-ideal) for each neuron
+            # so we loop over each neuron in the output layer
+            for output in range(len(model[-1][-1])):
+                # now we subtract the associated label from it and store it to our derrordout value
+                model[-1][output]['dEdo']=model[-1][output].get('aval')-labels[output]
+        else:
+            sum=0
+            for i in range(len(model[-1][-1])): # iterations = number of discrete outputs (because these are summed to generate total error)
+                # at each iteration we want to caluclate derrorx/dnodex
+                sum+=derrordout()
+
+            return sum
     
     # helper function for pd of activated value wrt non-activated value
     def doutdnet(node): # just need the node of concern for this one
@@ -191,10 +203,10 @@ def backwards(model,loss,labels,lr=.03): #performs backprop and stochastic gradi
 
     # helper function for pd of non-activated value wrt weight
     # this is just the aval of the node the weight is coming from
-    def dnetdwt(node,weight): # z = current neuron | w = index of input weight
-        return model[layer-1][node].get('aval')
+    def dnetdwt(layer,weight): # layer = current layer | weight = index of input weight
+        return model[layer-1][weight].get('aval') # go back one layer, pick the node that corresponds to the weight
 
     for layer in reversed(range(len(model))): # traversing from output layer
         for node in range(len(layer)): # access each neuron
             for weight in range(len(model[layer][node]['weights'])): # go over each weight
-                model[layer][node]['weightgradient'][weight] = derrordout((layer,node),weight) * doutdnet(node) * dnetdwt(node,weight)
+                model[layer][node]['weightgradient'][weight] = derrordout((layer,node),weight) * doutdnet(node) * dnetdwt(layer,weight)
